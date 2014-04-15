@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "amp.h"
 
@@ -17,8 +18,7 @@ int main()
 	};
 
 	arg_t args[] = {
-		{"some", sizeof("some")}
-		,
+		{"some", strlen("some")},
 		{&kumakichi, sizeof(kumakichi)}
 	};
 
@@ -37,7 +37,7 @@ int main()
 		unsigned char *arg = amp_decode_arg(&msg);
 		switch (i) {
 		case 0:
-			assert(0 == strcmp("some", arg));
+			assert(0 == strncmp("some", arg, 4));
 			break;
 		case 1:
 			p = (person_t *) arg;

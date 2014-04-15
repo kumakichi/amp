@@ -22,7 +22,7 @@ person_t kumakichi = {
 };
 
 arg_t args[] = {
-    {"some", sizeof("some")},
+    {"some", strlen("some")},
     {&kumakichi, sizeof(kumakichi)}
 };
 
@@ -42,7 +42,7 @@ for (i = 0; i < msg.argc; ++i) {
 	unsigned char *arg = amp_decode_arg(&msg);
 	switch (i) {
 	case 0:
-		assert(0 == strcmp("some", arg));
+		assert(0 == strncmp("some", arg, 4));
 		break;
 	case 1:
 		p = (person_t *) arg;
