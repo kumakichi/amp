@@ -50,7 +50,7 @@ void amp_decode(amp_t * msg, char *buf)
  * Jump over the legth bytes(4 bytes)
  */
 
-void jump_over_length_bytes(char **msg)
+void jump_over_length_bytes(unsigned char **msg)
 {
 	*msg += LEGTH_BYTES_SIZE;
 }
@@ -61,12 +61,12 @@ void jump_over_length_bytes(char **msg)
  * the msg->buf cursor.
  */
 
-char *amp_decode_arg(amp_t * msg)
+unsigned char *amp_decode_arg(amp_t * msg)
 {
 	uint32_t size = read_u32_be(msg->buf);
 	jump_over_length_bytes(&msg->buf);
 
-	char *buf = malloc(size);
+	unsigned char *buf = malloc(size);
 	if (!buf)
 		return NULL;
 
@@ -88,7 +88,7 @@ char *amp_decode_arg(amp_t * msg)
  *
  */
 
-char *amp_encode(char **argv, int argc, int *msg_len)
+unsigned char *amp_encode(arg_t * argv, int argc, int *msg_len)
 {
 	int i;
 	size_t total_size = 1;	/* for ver/argc byte */
@@ -97,13 +97,13 @@ char *amp_encode(char **argv, int argc, int *msg_len)
 	// length
 	for (i = 0; i < argc; ++i) {
 		total_size += LEGTH_BYTES_SIZE;
-		size[i] = strlen(argv[i]) + 1;	/* with NUL */
+		size[i] = argv[i].len;
 		total_size += size[i];
 	}
 
 	// alloc
-	char *buf = malloc(total_size);
-	char *ret = buf;
+	unsigned char *buf = malloc(total_size);
+	unsigned char *ret = buf;
 	if (!buf)
 		return NULL;
 
@@ -117,9 +117,31 @@ char *amp_encode(char **argv, int argc, int *msg_len)
 		write_u32_be(buf, size[i]);
 		jump_over_length_bytes(&buf);
 
-		memcpy(buf, argv[i], size[i]);
+		memcpy(buf, argv[i].data, size[i]);
 		buf += size[i];
 	}
 
 	return ret;
+}
+
+/*
+ * Free memory allocated by amp_encode()
+ */
+
+void amp_encode_clean(unsigned char **buf)
+{
+	if (*buf)
+		free(*buf);
+	*buf = NULL;		/* in case of double free */
+}
+
+/*
+ * Free memory allocated by amp_decode_arg()
+ */
+
+void amp_decode_arg_clean(unsigned char **buf)
+{
+	if (*buf)
+		free(*buf);
+	*buf = NULL;		/* in case of double free */
 }

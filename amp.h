@@ -20,17 +20,22 @@
 */
 
 typedef struct {
-    short version;
-    short argc;
-    char *buf;
+	short version;
+	short argc;
+	unsigned char *buf;
 } amp_t;
+
+typedef struct {
+	void *data;
+	int len;
+} arg_t;
 
 // prototypes
 
-char *amp_encode(char **argv, int argc, int *msg_len);
+unsigned char *amp_encode(arg_t * argv, int argc, int *msg_len);
 
 void amp_decode(amp_t * msg, char *buf);
 
-char *amp_decode_arg(amp_t * msg);
+unsigned char *amp_decode_arg(amp_t * msg);
 
 #endif

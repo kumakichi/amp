@@ -3,39 +3,52 @@
 #include <assert.h>
 #include "amp.h"
 
+typedef struct {
+	int age;
+	char name[16];
+} person_t;
+
 int main()
 {
 	int i, len;
-	char *args[] = { "some", "stuff", "here" };
+	person_t kumakichi = {
+		.age = 27,
+		.name = "kumakichi"
+	};
+
+	arg_t args[] = {
+		{"some", sizeof("some")}
+		,
+		{&kumakichi, sizeof(kumakichi)}
+	};
 
 	// encode
-	char *buf = amp_encode(args, 3, &len);
+	unsigned char *buf = amp_encode(args, 2, &len);
 
 	// header
 	amp_t msg = { 0 };
 	amp_decode(&msg, buf);
 	assert(1 == msg.version);
-	assert(3 == msg.argc);
+	assert(2 == msg.argc);
 
 	// args
 	for (i = 0; i < msg.argc; ++i) {
-		char *arg = amp_decode_arg(&msg);
+		person_t *p;
+		unsigned char *arg = amp_decode_arg(&msg);
 		switch (i) {
 		case 0:
 			assert(0 == strcmp("some", arg));
 			break;
 		case 1:
-			assert(0 == strcmp("stuff", arg));
-			break;
-		case 2:
-			assert(0 == strcmp("here", arg));
+			p = (person_t *) arg;
+			assert(27 == p->age);
+			assert(0 == strcmp("kumakichi", p->name));
 			break;
 		}
-		free(arg);
+		amp_decode_arg_clean(&arg);
 	}
-
 	printf("ok\n");
 
-	free(buf);
+	amp_encode_clean(&buf);
 	return 0;
 }

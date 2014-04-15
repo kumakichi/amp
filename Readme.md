@@ -6,30 +6,56 @@
   
 ## Warning
 
-  Remember to free memory pieces allocate by `amp_encode` and `amp_decode_arg`
+  Remember `amp_encode` and `amp_encode_clean` must be matched, so do `amp_decode_arg` and `amp_decode_arg_clean`.
 
 ## Example
 
 ```c
-char *args[] = { "some", "stuff", "here" };
+typedef struct {
+	int age;
+	char name[16];
+} person_t;
+
+person_t kumakichi = {
+    .age = 27,
+    .name = "kumakichi"
+};
+
+arg_t args[] = {
+    {"some", sizeof("some")},
+    {&kumakichi, sizeof(kumakichi)}
+};
 
 // encode
-char *buf = amp_encode(args, 3);
-// remember to free 'buf'
+int len;
+unsigned char *buf = amp_encode(args, 2, &len);
 
 // decode header
 amp_t msg = {0};
 amp_decode(&msg, buf);
-assert(1 == msg.version);
-assert(3 == msg.argc);
+assert(AMP_VERSION == msg.version);
+assert(2 == msg.argc);
 
 // decode args
-for (int i = 0; i < msg.argc; ++i) {
-  char *arg = amp_decode_arg(&msg);
-  // remember to free 'arg'
-  printf("%d : %s\n", i, arg);
-  free(arg);
+for (i = 0; i < msg.argc; ++i) {
+	person_t *p;
+	unsigned char *arg = amp_decode_arg(&msg);
+	switch (i) {
+	case 0:
+		assert(0 == strcmp("some", arg));
+		break;
+	case 1:
+		p = (person_t *) arg;
+		assert(27 == p->age);
+		assert(0 == strcmp("kumakichi", p->name));
+		break;
+	}
+    //clean arg
+	amp_decode_arg_clean(&arg);
 }
+...
+//clean encoder
+amp_encode_clean(&buf);
 ```
 
 ## Implementations
