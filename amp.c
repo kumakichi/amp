@@ -61,7 +61,7 @@ void jump_over_length_bytes(unsigned char **msg)
  * the msg->buf cursor.
  */
 
-unsigned char *amp_decode_arg(amp_t * msg)
+unsigned char *amp_decode_arg(amp_t * msg, int *arg_len)
 {
 	uint32_t size = read_u32_be(msg->buf);
 	jump_over_length_bytes(&msg->buf);
@@ -69,6 +69,9 @@ unsigned char *amp_decode_arg(amp_t * msg)
 	unsigned char *buf = malloc(size);
 	if (!buf)
 		return NULL;
+
+	if (arg_len)
+		*arg_len = size;
 
 	memcpy(buf, msg->buf, size);
 	msg->buf += size;

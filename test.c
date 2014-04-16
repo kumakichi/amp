@@ -34,7 +34,7 @@ int main()
 	// args
 	for (i = 0; i < msg.argc; ++i) {
 		person_t *p;
-		unsigned char *arg = amp_decode_arg(&msg);
+		unsigned char *arg = amp_decode_arg(&msg, NULL);
 		switch (i) {
 		case 0:
 			assert(0 == strncmp("some", arg, 4));

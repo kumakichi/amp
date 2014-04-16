@@ -36,6 +36,6 @@ unsigned char *amp_encode(arg_t * argv, int argc, int *msg_len);
 
 void amp_decode(amp_t * msg, char *buf);
 
-unsigned char *amp_decode_arg(amp_t * msg);
+unsigned char *amp_decode_arg(amp_t * msg, int *arg_len);
 
 #endif
